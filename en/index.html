@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Conversor de Notação Científica</title>
+    <link rel="stylesheet" href="css/calc.css" />
+    <link rel="icon" type="image/webp" href="favicon/icon.webp" />
+</head>
+<body>
+<h1>Scientific Numbers to Decimal Converter</h1>
+
+<label for="scientificNumber">Enter the scientific number:</label><br />
+<input
+        type="text"
+        id="scientificNumber"
+        style="width: 300px;"
+/>
+
+<button onclick="converter()">Convert</button>
+
+<p id="resultado" style="font-weight: bold; margin-top: 10px;"></p>
+
+<script>
+    function converter() {
+        const inputValue = document.getElementById("scientificNumber").value.trim();
+        const normalizedValue = inputValue.replace(",", ".");
+
+        const decimalString = scientificToDecimalString(normalizedValue);
+        document.getElementById("resultado").textContent = decimalString;
+    }
+
+    function scientificToDecimalString(scientificStr) {
+        const regex = /e/i;
+        if (!regex.test(scientificStr)) {
+            return scientificStr;
+        }
+
+        const [baseStr, expStr] = scientificStr.split(regex);
+
+        let exponent = parseInt(expStr, 10);
+
+        let sign = "";
+        let base = baseStr.trim();
+
+        if (base[0] === "+" || base[0] === "-") {
+            sign = base[0];
+            base = base.substring(1);
+        }
+
+        let decimalPos = base.indexOf(".");
+        let digits = base.replace(".", "");
+
+        let baseFractionLength = 0;
+        if (decimalPos !== -1) {
+            baseFractionLength = base.length - decimalPos - 1;
+        }
+
+        exponent = exponent - baseFractionLength;
+
+        if (exponent >= 0) {
+            const zerosToAdd = exponent - 0;
+            const padding = "0".repeat(zerosToAdd);
+            const finalNumber = digits + padding;
+            return (sign + finalNumber);
+        } else {
+            const absExp = Math.abs(exponent);
+
+            if (absExp >= digits.length) {
+                const zerosToAdd = absExp - digits.length;
+                const zeros = "0".repeat(zerosToAdd);
+                return sign + "0." + zeros + digits;
+            } else {
+                const insertPos = digits.length - absExp;
+                const part1 = digits.substring(0, insertPos);
+                const part2 = digits.substring(insertPos);
+                return sign + part1 + "." + part2;
+            }
+        }
+    }
+</script>
+</body>
+</html>
